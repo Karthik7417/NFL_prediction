@@ -19,23 +19,31 @@ offense_year<- function(year){
   passing_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[11]]
   rushing_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[12]]
   kickNpunt_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[13]]
+  official_standings<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[1]]
   }
   
   else if(year>1969){
     passing_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[8]]
     rushing_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[9]]
     kickNpunt_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[10]]
+    official_standings<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[1]]
   }
   else{
     passing_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[7]]
     rushing_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[8]]
     kickNpunt_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[9]]
+    official_standings<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[1]]
   }
   
   if(year>1999){
     passing_offense$EXP<-NULL
     rushing_offense$EXP<-NULL
   }
+  
+  official_standings[official_standings==""]<-NA
+  official_standings[official_standings=="Tm"]<-NA
+  official_standings<-official_standings[complete.cases(official_standings),]
+  
   #official_standings<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[3]]
   #official_standings1<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[2]]
   names(passing_offense)<-c("Rk","Tm","G","Cmp_PO","Att_PO","Cmp%_PO","Yds_PO","TD_PO","TD%_PO","Int_PO","Int%_PO", "Lng_PO","Y/A_PO","AY/A_PO","Y/C_PO","Y/G_PO","Rate_PO","QBR_PO","Sk_PO","LYds","NY/A_PO","ANY/A_PO","Sk%_PO","4QC_PO","GWD_PO")
@@ -43,7 +51,6 @@ offense_year<- function(year){
   names(rushing_offense)<-c("Rk","Tm","G","Att_RO","Yds_RO","TD_RO","Lng_RO","Y/A_RO","Y/G_RO","Fmb_RO")
   
   names(kickNpunt_offense)<-c("Rk","Tm","G","Ret_OPR","Yds_OPR","TD_OPR","Lng_OPR","Y/R_OPR","Ret_OKR","Yds_OKR","TD_PKR","Lng_OKR","Y/Ret_OKR","APYd")
-  
   
   #removing the unnecessary data
   passing_offense<-passing_offense[-nrow(passing_offense),]
@@ -58,6 +65,13 @@ offense_year<- function(year){
   
   
   ##cleaning data & formatting
+  official_standings[,1]<-as.character(official_standings[,1])
+  official_standings[,2:ncol(official_standings)]<-apply(official_standings[,2:ncol(official_standings)],2,as.numeric)
+
+  names(official_standings)<-c("Tm","Win","Loss","Tie","W-L%","Pts_Scored","Pts_Allowed","Point_Diff","MoV","SoS","SRS","OSRS","DSRS")
+  for(i in 1:nrow(official_standings)){
+    official_standings$Tm<-gsub("[^0-9A-Za-z///' ]", "", official_standings$Tm)
+  }
   passing_offense[,1]<-as.character(passing_offense[,1])
   passing_offense[,2:ncol(passing_offense)]<-apply(passing_offense[,2:ncol(passing_offense)],2,as.numeric)
   passing_offense[is.na(passing_offense)]<-0
@@ -69,19 +83,20 @@ offense_year<- function(year){
   
   
   ##merging data
+  offense_data<-merge(official_standings,passing_offense,by.x="Tm",by.y="Tm")
 
-  offense_data<-merge(passing_offense,rushing_offense,by.x="Tm", by.y="Tm")
+  offense_data1<-merge(offense_data,rushing_offense,by.x="Tm", by.y="Tm")
   
   
-  offense_data1<-merge(offense_data,kickNpunt_offense,by.x="Tm", by.y="Tm")
+  offense_data2<-merge(offense_data1,kickNpunt_offense,by.x="Tm", by.y="Tm")
   
   ##team_year
   
-  for(i in 1:nrow(offense_data)){
-    offense_data1[i,1]<-(offense_data1[i,1]%p% "_" %p% year)
+  for(i in 1:nrow(offense_data2)){
+    offense_data2[i,1]<-(offense_data2[i,1]%p% "_" %p% year)
   }
   #View(offense_data1)
-  offense_data1
+  offense_data2
 }
 
 
@@ -168,6 +183,6 @@ for(year in range){
     NFL.combined<-rbind(NFL.combined,data)
   }
 }
-NFL.combined<-NFL.combined[,-73]
+NFL.combined<-NFL.combined[,-85]
 View(NFL.combined)
 
