@@ -15,30 +15,29 @@ offense_year<- function(year){
   #pulling offense data from internet
   url<- paste("http://www.pro-football-reference.com/years/",year, "/", sep="")
   
+  official_standings<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[1]]
   if(year>2002){
   passing_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[11]]
   rushing_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[12]]
   kickNpunt_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[13]]
-  official_standings<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[1]]
   }
   
   else if(year>1969){
     passing_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[8]]
     rushing_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[9]]
     kickNpunt_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[10]]
-    official_standings<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[1]]
   }
   else{
     passing_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[7]]
     rushing_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[8]]
     kickNpunt_offense<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[9]]
-    official_standings<-readHTMLTable(url,encoding="UTF-8",colClasses ="character")[[1]]
   }
   
   if(year>1999){
     passing_offense$EXP<-NULL
     rushing_offense$EXP<-NULL
   }
+  
   
   official_standings[official_standings==""]<-NA
   official_standings[official_standings=="Tm"]<-NA
