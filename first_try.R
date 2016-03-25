@@ -104,7 +104,7 @@ defense_year<-function(year){
   
   names(rushing_defense)<-c("Rk","Tm","G", "Att_RD", "Yds_RD", "TD_RD","Y/A_RD", "Y/G_RD", "Fmb_RD")
                             
-  names(kickNpunt_defense)<-c("Rk","Tm","G", "Ret_PR", "Yds_PR", "TD_PR", "Y/R_PR", "Ret_KR", "Yds_KR","TD_KR", "Y/R_KR","APYd_KR")
+  names(kickNpunt_defense)<-c("Rk","Tm","G", "Ret_PR", "Yds_PR", "TD_PR", "Y/R_PR", "Ret_KR", "Yds_KR","TD_KR", "Y/R_KR")
   
   
   passing_defense<-passing_defense[-nrow(passing_defense),]
@@ -117,7 +117,7 @@ defense_year<-function(year){
   rushing_defense$Fmb_RD<-NULL
   rushing_defense$G<-NULL
   kickNpunt_defense$Rk<-NULL
-  kickNpunt_defense$APYD_KR<-NULL
+  kickNpunt_defense<-kickNpunt_defense[,-nrow(kickNpunt_defense)]
   kickNpunt_defense$G<-NULL
   
   passing_defense[,1]<-as.character(passing_defense[,1])
@@ -168,5 +168,6 @@ for(year in range){
     NFL.combined<-rbind(NFL.combined,data)
   }
 }
+NFL.combined<-NFL.combined[,-73]
 View(NFL.combined)
-write.csv(NFL.combined,file="NFL_data.csv")
+
